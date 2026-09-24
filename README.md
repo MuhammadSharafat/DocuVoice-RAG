@@ -132,18 +132,4 @@ The same codebase runs locally or in production, switching behavior based on whi
 - This is a demo/portfolio-scale deployment — no authentication, single free-tier instances. A production version would need rate limiting, auth, and paid infrastructure to avoid cold starts.
 - Retrieval quality depends on how the PDF is structured; very technical or image-heavy documents may retrieve less precisely.
 
----
 
-## Tech Stack
-
-| Layer | Tool | Why |
-|---|---|---|
-| Voice input | **AssemblyAI** | Real-time speech-to-text for hands-free questions |
-| Voice output | **edge-tts** | Converts the generated answer back into spoken audio |
-| Frontend | **Streamlit** | Web UI — PDF upload, mic input, answer display |
-| Backend | **FastAPI + Inngest** | API layer + durable, retryable background jobs for ingestion and querying |
-| Vector store | **Qdrant** | Stores and searches document embeddings |
-| Embeddings | **fastembed** (ONNX, `all-MiniLM-L6-v2`) | Lightweight, local embedding generation — no GPU or heavy dependencies needed |
-| PDF parsing / chunking | **LlamaIndex** | Reads PDFs and splits them into overlapping chunks for retrieval |
-| LLM | **Groq** (`openai/gpt-oss-20b`) | Fast inference for generating the final answer from retrieved context |
-| Deployment | **Render** (backend), **Streamlit Community Cloud** (frontend) | Free-tier hosting for both services |
