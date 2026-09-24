@@ -173,39 +173,38 @@ def wait_for_run_output(event_id: str, timeout_s: float = 300.0, poll_interval_s
         time.sleep(poll_interval_s)
 
 
-with st.form("rag_query_form"):
-    question = st.text_input("Your question", value=st.session_state.get("voice_question", ""))
-    top_k = st.number_input("How many chunks to retrieve", min_value=1, max_value=20, value=5, step=1)
-    manual_ask = st.button("Ask")
+question = st.text_input("Your question", value=st.session_state.get("voice_question", ""))
+top_k = st.number_input("How many chunks to retrieve", min_value=1, max_value=20, value=5, step=1)
+manual_ask = st.button("Ask")
 
-    should_run = manual_ask or st.session_state.get("auto_submit", False)
+should_run = manual_ask or st.session_state.get("auto_submit", False)
 
-    if should_run and question.strip():
-        st.session_state.auto_submit = False 
+if should_run and question.strip():
+    st.session_state.auto_submit = False
 
-        with st.spinner("Sending event and generating answer..."):
-            event_id = asyncio.run(send_rag_query_event(question.strip(), int(top_k)))
-            output = wait_for_run_output(event_id)
-            answer = output.get("answer", "")
-            sources = output.get("sources", [])
-            num_contexts = output.get("num_contexts", 0)
+    with st.spinner("Sending event and generating answer..."):
+        event_id = asyncio.run(send_rag_query_event(question.strip(), int(top_k)))
+        output = wait_for_run_output(event_id)
+        answer = output.get("answer", "")
+        sources = output.get("sources", [])
+        num_contexts = output.get("num_contexts", 0)
 
-        st.caption(f"Retrieved {num_contexts} chunk(s) from the vector store")
-        if not answer:
-            st.warning("Got an empty answer. Raw output from the run, for debugging:")
-            st.json(output)
+    st.caption(f"Retrieved {num_contexts} chunk(s) from the vector store")
+    if not answer:
+        st.warning("Got an empty answer. Raw output from the run, for debugging:")
+        st.json(output)
 
-        st.subheader("Answer")
-        st.write(answer or "(No answer)")
-        if sources:
-            st.caption("Sources")
-            for s in sources:
-                st.write(f"- {s}")
+    st.subheader("Answer")
+    st.write(answer or "(No answer)")
+    if sources:
+        st.caption("Sources")
+        for s in sources:
+            st.write(f"- {s}")
 
-        if answer:
-            with st.spinner("Generating voice answer..."):
-                try:
-                    audio_answer = text_to_speech(answer)
-                    st.audio(audio_answer, format="audio/mp3")
-                except Exception as e:
-                    st.warning(f"Voice output failed: {e}")
+    if answer:
+        with st.spinner("Generating voice answer..."):
+            try:
+                audio_answer = text_to_speech(answer)
+                st.audio(audio_answer, format="audio/mp3")
+            except Exception as e:
+                st.warning(f"Voice output failed: {e}")
