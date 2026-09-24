@@ -81,6 +81,7 @@ if audio is not None:
                 text = transcribe_audio(audio.getvalue())
                 st.session_state.voice_question = text
                 st.session_state.last_audio_id = audio.file_id
+                st.session_state.auto_submit = True
             except Exception as e:
                 st.error(f"Transcription failed: {e}")
 
@@ -175,13 +176,15 @@ def wait_for_run_output(event_id: str, timeout_s: float = 300.0, poll_interval_s
 with st.form("rag_query_form"):
     question = st.text_input("Your question", value=st.session_state.get("voice_question", ""))
     top_k = st.number_input("How many chunks to retrieve", min_value=1, max_value=20, value=5, step=1)
-    submitted = st.form_submit_button("Ask")
+    manual_ask = st.button("Ask")
 
-    if submitted and question.strip():
+    should_run = manual_ask or st.session_state.get("auto_submit", False)
+
+    if should_run and question.strip():
+        st.session_state.auto_submit = False 
+
         with st.spinner("Sending event and generating answer..."):
-            # Fire-and-forget event to Inngest for observability/workflow
             event_id = asyncio.run(send_rag_query_event(question.strip(), int(top_k)))
-            # Poll the local Inngest API for the run's output
             output = wait_for_run_output(event_id)
             answer = output.get("answer", "")
             sources = output.get("sources", [])
