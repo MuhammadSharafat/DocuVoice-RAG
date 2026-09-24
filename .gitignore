@@ -6,8 +6,7 @@ __pycache__/
 *.pyc
 *.pyo
 
-# Virtual environment
-ragapp/
+
 
 # Qdrant local storage
 qdrant_storage/
@@ -19,3 +18,5 @@ uploads/
 # Editor/OS junk (optional but common)
 .vscode/
 .DS_Store
+
+vrag/
