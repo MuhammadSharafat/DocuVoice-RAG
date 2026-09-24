@@ -113,4 +113,8 @@ async def rag_query_pdf_ai(ctx: inngest.Context):
 
 app = FastAPI()
 
+@app.get("/")
+def health_check():
+    return {"status": "ok"}
+
 inngest.fast_api.serve(app, inngest_client, [rag_ingest_pdf, rag_query_pdf_ai])
